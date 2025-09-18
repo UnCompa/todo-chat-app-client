@@ -1,5 +1,5 @@
 import React, { createContext, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/auth/authStore"
 import type { User } from "../types/auth"
 
@@ -12,19 +12,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
-
-  // Evitar traer todo el store
+  const location = useLocation()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const isLoading = useAuthStore((state) => state.isLoading)
   const user = useAuthStore((state) => state.user)
-  console.log(isAuthenticated, user)
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login")
-    } else {
-      console.log("User is authenticated:", user)
-      navigate("/dashboard")
+    if (!isAuthenticated && !isLoading) {
+      // Si no está autenticado, lo mandamos al login
+      navigate("/login", { replace: true, state: { from: location } })
     }
-  }, [isAuthenticated, navigate])
+    // Si está autenticado, no redirigimos a ningún lado
+  }, [isAuthenticated, navigate, location, isLoading])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user }}>
