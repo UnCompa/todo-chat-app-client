@@ -103,5 +103,3 @@ class SocketManager {
 
 // Singleton instance
 export const socketManager = new SocketManager();
-
-// Hook personalizado para usar Socket.IO en componentes React
