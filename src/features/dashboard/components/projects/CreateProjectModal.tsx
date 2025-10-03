@@ -10,7 +10,7 @@ import { useProject } from '../../hooks/useProject'
 
 function CreateProjectModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const userId = useAuthStore((state) => state.user?.id);
-  const { mutateAsync, isSuccess } = useProject(userId ?? "");
+  const { createProject, isCreatingProject } = useProject(userId ?? "");
 
   const createProjectSchema = Yup.object().shape({
     name: Yup.string().min(6, 'Debe ser minimo de 6 caracteres'),
@@ -25,18 +25,18 @@ function CreateProjectModal({ isOpen, onClose }: { isOpen: boolean, onClose: () 
     validationSchema: createProjectSchema,
     onSubmit: async (values) => {
       console.info(values)
-      await mutateAsync({ name: values.name, description: values.description })
+      await createProject({ name: values.name, description: values.description })
     },
   })
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isCreatingProject) {
       toast.success('Proyecto creado')
       onClose()
     } else {
       toast.error('Error al crear el proyecto')
     }
-  }, [isSuccess])
+  }, [isCreatingProject])
 
   return (
     <Modal

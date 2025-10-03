@@ -31,7 +31,7 @@ function CreateFirstProject() {
         >
           Crear tu primer proyecto
         </button>
-        <CreateProjectModal isOpen={isOpen} onClose={onClose}/>
+        <CreateProjectModal isOpen={isOpen} onClose={onClose} />
       </div>
     );
   }
@@ -48,7 +48,7 @@ function CreateFirstProject() {
             <li key={project.id}>
               <button
                 onClick={() => setProject(project)}
-                className="w-full px-4 py-2 text-left bg-surface rounded-lg border border-gray-300 hover:bg-gray-100"
+                className="w-full px-4 py-2 text-left bg-bg/50 rounded-lg text-text shadow-2xl cursor-pointer hover:bg-primary-500/50 transition-all"
               >
                 {project.name}
               </button>

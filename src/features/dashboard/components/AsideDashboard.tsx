@@ -1,87 +1,102 @@
-import { motion } from "framer-motion";
-import {
-  Building2,
-  FolderKanban,
-  Home,
-  Menu,
-  User,
-  X,
-} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Building2, FolderKanban, Home, Menu, User, X } from "lucide-react";
 import { useEffect } from "react";
-import Button from "../../../components/common/Button";
 import ThemeSwitch from "../../../components/common/ThemeSwitch";
-import { useAuthStore } from "../../../store/auth/authStore";
-import { useAside } from "../hooks/useAside";
+import useAsideStore from "../../../store/dashboard/useAsideStore";
 
 function AsideDashboard() {
-  const { isAsideOpen: isOpen, setIsAsideOpen: setIsOpen, isMobile } = useAside();
-  const logout = useAuthStore(state => state.logout);
+  const { isOpen, toggleAside, isMobile } = useAsideStore();
 
   const menuItems = [
     { name: "Inicio", icon: <Home size={20} />, href: "/dashboard" },
-    { name: "Projects", icon: <FolderKanban size={20} />, href: "#" },
+    { name: "Proyectos", icon: <FolderKanban size={20} />, href: "#" },
     { name: "Organizaciones", icon: <Building2 size={20} />, href: "/dashboard/organizations" },
     { name: "Perfil", icon: <User size={20} />, href: "#" },
   ];
 
-  // Cerrar aside al hacer click fuera (solo en móvil)
+  // Manejo de clic fuera y tecla Escape para cerrar en móvil
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isMobile && isOpen && !event.target.closest('aside')) {
-        setIsOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (isMobile && isOpen && !target.closest("aside") && !target.closest("button[aria-label='Abrir menú']")) {
+        toggleAside();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (isMobile && isOpen && event.key === "Escape") {
+        toggleAside();
       }
     };
 
     if (isMobile && isOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
+      // Pequeño delay para evitar que el clic que abre el menú también lo cierre
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+      }, 100);
+      document.addEventListener("keydown", handleEscape);
+
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleEscape);
+      };
     }
-  }, [isMobile, isOpen, setIsOpen]);
+  }, [isMobile, isOpen, toggleAside]);
 
   return (
     <>
       {/* Overlay para móvil */}
-      {isMobile && isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isMobile && isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black z-40 md:hidden"
+            onClick={toggleAside}
+          />
+        )}
+      </AnimatePresence>
 
       <motion.aside
+        initial={false}
         animate={{
-          width: isMobile
-            ? (isOpen ? 240 : 0)
-            : (isOpen ? 240 : 80),
-          x: isMobile && !isOpen ? -240 : 0
+          width: isMobile ? (isOpen ? 260 : 0) : isOpen ? 260 : 80,
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={`
-          ${isMobile ? 'fixed' : 'relative'} 
-          ${isMobile ? 'z-50' : 'z-auto'}
-          h-screen bg-surface shadow-md border-r border-[var(--color-border)] 
-          flex flex-col font-WorkSans overflow-hidden
+          ${isMobile ? 'fixed' : 'sticky'} top-0 h-screen bg-surface shadow-md 
+          border-r border-[var(--color-border)] flex flex-col font-WorkSans 
+          overflow-hidden z-50
+          ${isMobile && !isOpen ? 'pointer-events-none' : ''}
         `}
       >
-        {/* Header con botón */}
+        {/* Header */}
         <div className="flex items-center justify-between p-4 min-h-[60px]">
-          {(isOpen || !isMobile) && (
-            <motion.h1
-              animate={{ opacity: isOpen ? 1 : 0 }}
-              className="text-xl font-bold text-text tracking-wide"
+          <AnimatePresence mode="wait">
+            {isOpen && (
+              <motion.h1
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="text-xl font-bold text-text tracking-wide"
+              >
+                Saberium
+              </motion.h1>
+            )}
+          </AnimatePresence>
+
+          {isMobile && isOpen && (
+            <button
+              onClick={toggleAside}
+              className="p-2 rounded-lg hover:bg-[var(--color-neutral-100)] transition"
+              aria-label="Cerrar menú"
             >
-              Saberium
-            </motion.h1>
+              <X size={20} />
+            </button>
           )}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg hover:bg-[var(--color-neutral-100)] transition flex-shrink-0"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
 
         {/* Menú */}
@@ -91,39 +106,40 @@ function AsideDashboard() {
               key={item.name}
               href={item.href}
               className="flex items-center gap-3 p-3 rounded-xl text-text hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)] transition-all"
-              onClick={() => isMobile && setIsOpen(false)} // Cerrar en móvil al navegar
+              onClick={() => isMobile && toggleAside()}
             >
               <span className="flex-shrink-0">{item.icon}</span>
-              {(isOpen || !isMobile) && (
-                <motion.span
-                  animate={{ opacity: isOpen ? 1 : 0 }}
-                  className="whitespace-nowrap"
-                >
-                  {item.name}
-                </motion.span>
-              )}
+              <AnimatePresence mode="wait">
+                {isOpen && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="whitespace-nowrap overflow-hidden"
+                  >
+                    {item.name}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </a>
           ))}
         </nav>
 
-        {/* Footer con theme switch y botón logout */}
-        <div className="p-4 space-y-2 border-t border-[var(--color-border)]">
-          <div className={`flex ${isOpen ? 'justify-center' : 'justify-center'}`}>
+        {/* Footer */}
+        <div className="p-4 border-t border-[var(--color-border)]">
+          <div className={`flex items-center ${isOpen ? 'justify-between' : 'justify-center'}`}>
             <ThemeSwitch />
-          </div>
-          {(isOpen || !isMobile) && (
-            <motion.div
-              animate={{ opacity: isOpen ? 1 : 0 }}
-              className="w-full"
-            >
-              <Button
-                onClick={() => logout()}
-                className="w-full text-sm"
+            {!isMobile && (
+              <button
+                onClick={toggleAside}
+                className="p-2 rounded-lg hover:bg-[var(--color-neutral-100)] transition"
+                aria-label={isOpen ? "Contraer menú" : "Expandir menú"}
               >
-                Cerrar sesión
-              </Button>
-            </motion.div>
-          )}
+                {isOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            )}
+          </div>
         </div>
       </motion.aside>
     </>
