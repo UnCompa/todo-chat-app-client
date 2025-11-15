@@ -123,9 +123,9 @@ export const useOnboardingStore = create<OnBoardingState>()(
 
             set({ isLoading: false });
             return { success: true, message: "Onboarding completed successfully.", id: orgId }; 
-          } catch (err: any) {
-            set({ isLoading: false, error: err.response?.data?.message || err.message || "Unknown error" });
-            return { success: false, message: err.response?.data?.message || err.message || "Onboarding failed." };
+          } catch (err) {
+            set({ isLoading: false, error:  (err as Error).message || "Unknown error" });
+            return { success: false, message: (err as Error).message || "Onboarding failed." };
           }
         },
       }),

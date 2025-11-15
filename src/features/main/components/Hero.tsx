@@ -83,12 +83,12 @@ function Hero() {
           variants={fadeUp}
           className="mt-8 flex flex-col sm:flex-row items-center gap-3"
         >
-          <Navigate to="/login">
+          <Navigate to="/register">
             Empieza gratis
           </Navigate>
-          <Navigate to="/colaborate" variant="outline">
+          {/* <Navigate to="/colaborate" variant="outline">
             Colaborar
-          </Navigate>
+          </Navigate> */}
         </motion.div>
         {/* Métricas de confianza */}
         <motion.ul

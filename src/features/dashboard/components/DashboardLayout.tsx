@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import useAsideStore from "../../../store/dashboard/useAsideStore";
 import AsideDashboard from "./AsideDashboard";
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayout({ children, spacing = true }: { children: React.ReactNode, spacing?: boolean }) {
   const { isMobile, setMobile, isOpen, setIsOpen, toggleAside } = useAsideStore();
 
   // Detectar tamaño de pantalla
@@ -52,8 +52,9 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       <main
         className={`
-          flex-1 bg-surface rounded-lg shadow-2xl p-4 overflow-x-auto
+          flex-1 bg-surface rounded-lg shadow-2xl overflow-x-auto
           ${isMobile ? "m-1 min-h-[calc(100vh-0.5rem)]" : "m-1"}
+          ${spacing ? "p-4" : "p-0"}
         `}
       >
         {children}

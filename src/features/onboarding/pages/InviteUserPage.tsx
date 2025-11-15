@@ -62,7 +62,7 @@ function InviteUserPage() {
     setError(null);
 
     try {
-      const { data, error } = await authClient.organization.acceptInvitation({
+      const { error } = await authClient.organization.acceptInvitation({
         invitationId: invitation.id
       });
 

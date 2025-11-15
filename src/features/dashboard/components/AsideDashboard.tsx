@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Building2, FolderKanban, Home, Menu, User, X } from "lucide-react";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import ThemeSwitch from "../../../components/common/ThemeSwitch";
 import useAsideStore from "../../../store/dashboard/useAsideStore";
 
@@ -9,9 +10,9 @@ function AsideDashboard() {
 
   const menuItems = [
     { name: "Inicio", icon: <Home size={20} />, href: "/dashboard" },
-    { name: "Proyectos", icon: <FolderKanban size={20} />, href: "#" },
+    { name: "Proyectos", icon: <FolderKanban size={20} />, href: "/dashboard/projects" },
     { name: "Organizaciones", icon: <Building2 size={20} />, href: "/dashboard/organizations" },
-    { name: "Perfil", icon: <User size={20} />, href: "#" },
+    { name: "Perfil", icon: <User size={20} />, href: "/dashboard/profile" },
   ];
 
   // Manejo de clic fuera y tecla Escape para cerrar en móvil
@@ -75,7 +76,7 @@ function AsideDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 min-h-[60px]">
           <AnimatePresence mode="wait">
-            {isOpen && (
+            {isOpen ? (
               <motion.h1
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -85,7 +86,18 @@ function AsideDashboard() {
               >
                 Saberium
               </motion.h1>
-            )}
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="w-full flex justify-center items-center"
+              >
+                <img src="/favicon.svg" alt="Logo de Saberium" className="max-w-8"/>
+              </motion.div>
+            )
+          }
           </AnimatePresence>
 
           {isMobile && isOpen && (
@@ -102,10 +114,10 @@ function AsideDashboard() {
         {/* Menú */}
         <nav className="flex-1 px-2 mt-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
-              className="flex items-center gap-3 p-3 rounded-xl text-text hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)] transition-all"
+              to={item.href}
+              className={`flex items-center gap-3 p-3 rounded-xl text-text hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)] transition-all ${!isOpen ? "justify-center" : ""}`}
               onClick={() => isMobile && toggleAside()}
             >
               <span className="flex-shrink-0">{item.icon}</span>
@@ -122,21 +134,21 @@ function AsideDashboard() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </a>
+            </Link>
           ))}
         </nav>
 
         {/* Footer */}
         <div className="p-4 border-t border-[var(--color-border)]">
-          <div className={`flex items-center ${isOpen ? 'justify-between' : 'justify-center'}`}>
+          <div className={`flex items-center ${isOpen ? 'justify-between' : 'justify-center flex-col gap-2'}`}>
             <ThemeSwitch />
             {!isMobile && (
               <button
                 onClick={toggleAside}
-                className="p-2 rounded-lg hover:bg-[var(--color-neutral-100)] transition"
+                className="p-2 rounded-lg hover:bg-bg transition"
                 aria-label={isOpen ? "Contraer menú" : "Expandir menú"}
               >
-                {isOpen ? <X size={20} /> : <Menu size={20} />}
+                {isOpen ? <X className="text-text" size={20} /> : <Menu  className="text-text"size={20} />}
               </button>
             )}
           </div>

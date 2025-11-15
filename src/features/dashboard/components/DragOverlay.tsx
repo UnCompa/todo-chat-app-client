@@ -18,7 +18,7 @@ export const CustomDragOverlay = ({ activeTask }: CustomDragOverlayProps) => {
     >
       {activeTask && (
         <div className="rotate-3 scale-105 shadow-2xl border-2 border-blue-400">
-          <TaskCard {...activeTask} isDragging />
+          <TaskCard {...activeTask} />
         </div>
       )}
     </DragOverlay>,

@@ -3,24 +3,27 @@ import { cn } from '../../utils/cn';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
-  variant?: 'solid' | 'outline';
+  variant?: 'solid' | 'outline' | 'ghost' | 'success' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, variant = 'solid', size = 'md', loading = false, className, disabled, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus-visible:ring-4 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseClasses = 'btn font-Outfit focus-visible:ring-[--ring-color]';
 
     const variantClasses = {
-      solid: 'bg-primary-600 hover:bg-primary-700 text-white shadow-md shadow-primary-600/20 focus-visible:ring-primary-400/40 disabled:hover:bg-primary-600',
-      outline: 'border border-gray-300 text-gray-700 bg-transparent hover:bg-gray-50 focus-visible:ring-gray-400/40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent'
+      solid: 'btn-primary',
+      outline: 'btn-ghost border border-border text-surface hover:text-text',
+      ghost: 'btn-ghost',
+      success: 'btn-success',
+      danger: 'btn-danger',
     };
 
     const sizeClasses = {
       sm: 'text-sm px-3 py-1.5',
       md: 'text-base px-6 py-3',
-      lg: 'text-lg px-8 py-4'
+      lg: 'text-lg px-8 py-4',
     };
 
     const buttonClassName = cn(

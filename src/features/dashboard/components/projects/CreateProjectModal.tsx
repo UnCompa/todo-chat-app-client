@@ -10,11 +10,11 @@ import { useProject } from '../../hooks/useProject'
 
 function CreateProjectModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const userId = useAuthStore((state) => state.user?.id);
-  const { createProject, isCreatingProject } = useProject(userId ?? "");
+  const { createProject, isCreateProjectError } = useProject(userId ?? "");
 
   const createProjectSchema = Yup.object().shape({
     name: Yup.string().min(6, 'Debe ser minimo de 6 caracteres'),
-    description: Yup.string().required('La descripcion es requerida')
+    description: Yup.string().required('La descripcion es requerida').min(10, 'Debe ser minimo de 10 caracteres'),
   })
 
   const formik = useFormik({
@@ -30,13 +30,13 @@ function CreateProjectModal({ isOpen, onClose }: { isOpen: boolean, onClose: () 
   })
 
   useEffect(() => {
-    if (isCreatingProject) {
+    if (!isCreateProjectError) {
       toast.success('Proyecto creado')
       onClose()
     } else {
       toast.error('Error al crear el proyecto')
     }
-  }, [isCreatingProject])
+  }, [isCreateProjectError])
 
   return (
     <Modal

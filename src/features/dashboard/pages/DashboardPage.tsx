@@ -1,10 +1,12 @@
+import Button from "@/components/common/Button";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/auth/authStore";
 import { useProjectStore } from "../../../store/dashboard/projectStore";
 import DashboardLayout from "../components/DashboardLayout";
 import KanbanBoard from "../components/KanBanBoard";
 import CreateFirstProject from "../components/projects/CreateFirstProject";
+import SelectorProject from "../components/projects/SelectorProject";
 import { useProjectDetails } from "../hooks/useProjectDetails";
 
 function DashboardPage() {
@@ -12,7 +14,7 @@ function DashboardPage() {
   const { user, isLoading } = useAuthStore((state) => state);
   const { selectedProject } = useProjectStore(state => state)
 
-  const { data: project } = useProjectDetails({userId: user?.id ?? '', projectId: selectedProject?.id ?? ''})
+  const { data: project } = useProjectDetails({ userId: user?.id ?? '', projectId: selectedProject?.id ?? '' })
   useEffect(() => {
     if (!user?.activeOrganizationId) {
       navigate("/onboarding");
@@ -31,11 +33,33 @@ function DashboardPage() {
   console.info(project)
   return (
     <DashboardLayout>
-      <h1 className="text-text text-2xl font-bold font-Outfit">Bienvenido a Saberium</h1>
-      <CreateFirstProject />
+      <div className="flex justify-between">
+        {
+          selectedProject == null ? (
+            <h1 className="text-text text-2xl font-bold font-Outfit">Bienvenido a Saberium</h1>
+          ) : (
+            <SelectorProject selectedProject={selectedProject} />
+          )
+        }
+
+        {
+          project &&
+          <div>
+            <div>
+              <Link to={"/dashboard/tasks"}>
+                <Button>Crear tarea</Button>
+              </Link>
+            </div>
+
+          </div>
+        }
+      </div>
       {
-        project && <KanbanBoard project={project?.data} />
+        project && (
+          <KanbanBoard project={project?.data} />
+        )
       }
+      <CreateFirstProject />
     </DashboardLayout>
 
   );

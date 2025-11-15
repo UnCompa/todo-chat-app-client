@@ -4,6 +4,8 @@ import {
   closestCorners,
   useSensor,
   useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
@@ -35,12 +37,14 @@ export default function KanbanBoard({ project }: KanbanBoardProps) {
   const { data: tasksData, updateTaskColumn } = useTasks({ projectId: project.id });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-
+  const updateColumn = async (params: { taskId: string; columnId: string; projectId: string }) => {
+    await updateTaskColumn(params)
+  }
   // Custom hooks
   const { handleDragEnd } = useDragAndDrop({
     tasks,
     setTasks,
-    updateTaskColumn,
+    updateTaskColumn: updateColumn,
     project
   });
 
@@ -60,12 +64,12 @@ export default function KanbanBoard({ project }: KanbanBoardProps) {
     }
   }, [tasksData]);
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     const task = tasks.find(t => t.id === event.active.id);
     setActiveTask(task || null);
   };
 
-  const handleDragEndWithCleanup = (event: any) => {
+  const handleDragEndWithCleanup = (event: DragEndEvent) => {
     handleDragEnd(event);
     setActiveTask(null);
   };

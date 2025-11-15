@@ -1,3 +1,5 @@
+import EmailConfirmationPage from '@/features/auth/pages/EmailConfirmationPage';
+import ProjectPage from '@/features/dashboard/pages/ProjectPage';
 import { lazy } from 'react';
 
 // Lazy load de las páginas
@@ -10,6 +12,9 @@ const LandingPage = lazy(() => import('../features/main/pages/LandingPage'));
 const OnBoardingPage = lazy(() => import('../features/onboarding/pages/OnBoardingPage'));
 const InviteUserPage = lazy(() => import('../features/onboarding/pages/InviteUserPage'));
 const OrganizationPage = lazy(() => import('../features/dashboard/pages/OrganizationsPage'));
+const TaskEditorPage = lazy(() => import('../features/dashboard/pages/TaskEditorPage'));
+const EditTaskEditorPage = lazy(() => import('../features/dashboard/pages/EditTaskEditorPage'));
+const ProfilePage = lazy(() => import('../features/dashboard/pages/ProfilePage'));
 // const ExamplePage = lazy(() => import('../features/auth/pages/ExamplePage'));
 
 export const publicRoutes = [
@@ -30,6 +35,11 @@ export const publicRoutes = [
     exact: true,
   },
   {
+    path: '/email-confirmation',
+    component: EmailConfirmationPage,
+    exact: true,
+  },
+  {
     path: '/invite',
     component: InviteUserPage,
     exact: true,
@@ -46,6 +56,26 @@ export const privateRoutes = [
   {
     path: '/dashboard/organizations',
     component: OrganizationPage,
+    exact: true,
+  },
+  {
+    path: '/dashboard/tasks',
+    component: TaskEditorPage,
+    exact: true,
+  },
+  {
+    path: '/dashboard/tasks/:id',
+    component: EditTaskEditorPage,
+    //exact: true,
+  },
+  {
+    path: '/dashboard/profile',
+    component: ProfilePage,
+    exact: true,
+  },
+  {
+    path: '/dashboard/projects',
+    component: ProjectPage,
     exact: true,
   },
   {

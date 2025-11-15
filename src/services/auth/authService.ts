@@ -22,6 +22,7 @@ export const authService = {
       email: data.email,
       password: data.password,
       name: data.name ?? '',
+      callbackURL: `${window.location.origin}/onboarding`
     });
     if (result.error) {
       throw result.error;

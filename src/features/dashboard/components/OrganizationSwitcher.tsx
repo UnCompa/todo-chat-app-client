@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/common/Dropdown";
 import { authClient } from "../../../lib/authClient";
 
 export function OrganizationSwitcher({ organizations, activeId, onSwitch }) {
@@ -6,20 +7,14 @@ export function OrganizationSwitcher({ organizations, activeId, onSwitch }) {
     onSwitch(orgId); // notificamos al padre para refrescar datos
   };
 
+  const options = organizations.map((org) => ({
+    label: org.name, value: org.id
+  }))
+
   return (
     <div className="mb-6">
-      <label className="font-semibold">Cambiar organización:</label>
-      <select
-        className="ml-2 border px-2 py-1"
-        value={activeId}
-        onChange={(e) => handleSwitch(e.target.value)}
-      >
-        {organizations.map((org) => (
-          <option key={org.id} value={org.id}>
-            {org.name}
-          </option>
-        ))}
-      </select>
+      <label className="font-semibold px-4">Cambiar organización:</label>
+      <Dropdown value={activeId} items={options} onSelect={(item) => handleSwitch(item.value as string)} />
     </div>
   );
 }

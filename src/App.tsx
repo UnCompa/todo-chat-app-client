@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { SocketProvider } from "./config/socker-context";
 import AppRouter from "./router/AppRouter";
 import { useAuthStore } from "./store/auth/authStore";
+import { Toaster } from "sonner";
 
 function App() {
   const initAuth = useAuthStore((state) => state.init);
@@ -15,6 +16,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster richColors theme="system"/>
       <SocketProvider>
         <AppRouter />
       </SocketProvider>

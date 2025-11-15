@@ -1,9 +1,10 @@
+import { useAuthStore } from '@/store/auth/authStore'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ProjectService } from '../../../services/projects/projectService'
 
 export const useProject = (userId: string) => {
   const queryClient = useQueryClient()
-
+  const user = useAuthStore(state => state.user)
   // Query para obtener proyectos
   const {
     data: projects,
@@ -14,7 +15,7 @@ export const useProject = (userId: string) => {
     queryKey: ['projects', userId],
     queryFn: async () => {
       const service = new ProjectService()
-      return await service.getAll()
+      return await service.getAll(user.activeOrganizationId)
     },
     enabled: !!userId, // evita ejecutar si no hay userId
   })
@@ -34,6 +35,35 @@ export const useProject = (userId: string) => {
     },
   })
 
+  const {
+    mutateAsync: deleteProject,
+    isPending: isDeletingProject,
+    isError: isDeleteProjectError,
+  } = useMutation({
+    mutationFn: async ({ projectId }: { projectId: string; }) => {
+      const service = new ProjectService()
+      return await service.delete(projectId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', userId] })
+    },
+  })
+
+  const {
+    mutate: undoProject,
+    isPending: isUndoProject,
+    isError: isUndoProjectError,
+  } = useMutation({
+    mutationFn: async ({ projectId }: { projectId: string; }) => {
+      const service = new ProjectService()
+      return await service.undo(projectId)
+
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', userId] })
+    },
+  })
+
   return {
     // Query
     projects,
@@ -45,5 +75,13 @@ export const useProject = (userId: string) => {
     createProject,
     isCreatingProject,
     isCreateProjectError,
+
+    deleteProject,
+    isDeletingProject,
+    isDeleteProjectError,
+
+    undoProject,
+    isUndoProject,
+    isUndoProjectError
   }
 }

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { cn } from '../../utils/cn'
 import Navigate from '../common/Navigate'
 import ThemeSwitch from '../common/ThemeSwitch'
@@ -20,9 +21,13 @@ function Header({ variant = 'fixed' }: HeaderProps) {
   return (
     <header className={headerClass}>
       {/* Logo/Título responsive */}
-      <h1 className="text-lg sm:text-xl font-semibold text-[color:var(--color-text)] truncate">
-        Saberium
-      </h1>
+      <Link
+        to={"/"}
+      >
+        <h1 className="text-lg sm:text-xl font-semibold text-[color:var(--color-text)] truncate">
+          Saberium
+        </h1>
+      </Link>
 
       {/* Navigation responsive */}
       <div className="flex items-center gap-2 sm:gap-3 font-WorkSans">

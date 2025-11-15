@@ -1,3 +1,5 @@
+import Button from "@/components/common/Button";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../../../lib/authClient";
@@ -5,16 +7,18 @@ import { useAuthStore } from "../../../store/auth/authStore";
 import { useProjectStore } from "../../../store/dashboard/projectStore";
 import DashboardLayout from "../components/DashboardLayout";
 import { OrganizationSwitcher } from "../components/OrganizationSwitcher";
+import AddMembersModal from "../components/organization/AddMembersModal";
+import { useDisclosure } from "../hooks/useDisclore";
 
 function OrganizationPage() {
   const navigate = useNavigate();
-  const { logout, user } = useAuthStore((state) => state);
-  const clearProject = useProjectStore(state => state.clearProject)
+  const {  user } = useAuthStore((state) => state);
+  const clearProject = useProjectStore((state) => state.clearProject);
   const [organizations, setOrganizations] = useState([]);
   const [activeOrg, setActiveOrg] = useState(null);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const {isOpen, onClose, onOpen} = useDisclosure()
   useEffect(() => {
     if (!user?.activeOrganizationId) {
       navigate("/onboarding");
@@ -23,11 +27,9 @@ function OrganizationPage() {
 
     const fetchData = async () => {
       try {
-        // Listar organizaciones del usuario
         const { data: orgs } = await authClient.organization.list();
         setOrganizations(orgs || []);
 
-        // Obtener la organización activa
         if (user.activeOrganizationId) {
           const { data: orgData } = await authClient.organization.getFullOrganization();
           setActiveOrg(orgData || null);
@@ -43,98 +45,143 @@ function OrganizationPage() {
     fetchData();
   }, [user]);
 
-  const handleLogout = () => {
-    logout();
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Cargando tu dashboard...</p>
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
+          <p className="text-[var(--color-muted)]">Cargando tu dashboard...</p>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-3xl">
-          {/* Usuario actual */}
-          <h1 className="text-2xl font-bold mb-4">
-            Hola, {user?.name || user?.email}
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Estás logueado como <strong>{user?.email}</strong>
-          </p>
-
-          {/* Organización activa */}
-          {activeOrg ? (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-2">Organización activa</h2>
-              <p>
-                <strong>Nombre:</strong> {activeOrg.name}
-              </p>
-              <p>
-                <strong>Slug:</strong> {activeOrg.slug}
-              </p>
-              <p>
-                <strong>Rol actual:</strong>{" "}
-                {members.find((m) => m.userId === user?.id)?.role || "Sin rol"}
-              </p>
-            </div>
-          ) : (
-            <p className="text-gray-500">No tienes una organización activa.</p>
-          )}
-
-          {/* Todas las organizaciones del usuario */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">
-              Mis Organizaciones ({organizations.length})
-            </h2>
-            <ul className="list-disc list-inside text-left">
-              {organizations.map((org) => (
-                <li key={org.id}>
-                  {org.name} <span className="text-gray-500">({org.id})</span>
-                </li>
-              ))}
-            </ul>
+      <div className="min-h-screen bg-[var(--color-bg)] p-4 sm:p-6 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">
+              Hola, <span className="text-[var(--color-primary-600)]">{user?.name || user?.email}</span>
+            </h1>
+            <p className="mt-2 text-[var(--color-muted)]">
+              Estás logueado como <strong>{user?.email}</strong>
+            </p>
           </div>
 
-          {/* Miembros de la organización */}
-          {activeOrg && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-2">
-                Miembros de {activeOrg.name}
-              </h2>
-              <ul className="divide-y divide-gray-200">
-                {members.map((member) => (
-                  <li key={member.id} className="py-2 flex justify-between">
-                    <span>
-                      {member?.user?.name || member?.user?.email}
-                    </span>
-                    <span className="text-gray-600 italic">{member.role}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* Tarjeta principal */}
+          <div className="card space-y-6">
+            {/* Organización activa */}
+            {activeOrg ? (
+              <section>
+                <h2 className="text-xl font-semibold text-[var(--color-text)] mb-3">Organización activa</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[var(--color-text)]">
+                  <div>
+                    <p className="text-sm text-[var(--color-muted)]">Nombre</p>
+                    <p className="font-medium">{activeOrg.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[var(--color-muted)]">Slug</p>
+                    <p className="font-mono text-sm bg-[var(--color-elev-2)] px-2 py-1 rounded inline-block">
+                      {activeOrg.slug}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[var(--color-muted)]">Tu rol</p>
+                    <p className="font-medium">
+                      {members.find((m) => m.userId === user?.id)?.role || "Sin rol"}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <p className="text-[var(--color-muted)]">No tienes una organización activa.</p>
+            )}
+
+            <div className="divider"></div>
+
+            {/* Mis organizaciones */}
+            <section>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-xl font-semibold text-[var(--color-text)]">
+                  Mis Organizaciones
+                </h2>
+                <span className="text-sm text-[var(--color-muted)]">
+                  {organizations.length} {organizations.length === 1 ? 'organización' : 'organizaciones'}
+                </span>
+              </div>
+              {organizations.length > 0 ? (
+                <ul className="space-y-2">
+                  {organizations.map((org) => (
+                    <li
+                      key={org.id}
+                      className={`p-3 rounded-lg border ${org.id === user?.activeOrganizationId
+                          ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] dark:bg-[var(--color-primary-950)]'
+                          : 'border-[var(--color-border)]'
+                        }`}
+                    >
+                      <div className="font-medium text-[var(--color-text)]">{org.name}</div>
+                      <div className="text-xs text-[var(--color-muted)] mt-1">ID: {org.id}</div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[var(--color-muted)] italic">No perteneces a ninguna organización.</p>
+              )}
+            </section>
+
+            <div className="divider"></div>
+
+            {/* Miembros */}
+            {activeOrg && (
+              <section>
+                <div className="flex justify-between py-4">
+                  <h2 className="text-xl font-semibold text-[var(--color-text)] mb-3">
+                    Miembros de <span className="text-[var(--color-primary-600)]">{activeOrg.name}</span>
+                  </h2>
+                  <Button size="sm" onClick={() => onOpen()}> 
+                    <Plus className="text-xs"/>
+                  </Button>
+                </div>
+                {members.length > 0 ? (
+                  <ul className="space-y-2">
+                    {members.map((member) => (
+                      <li
+                        key={member.id}
+                        className="flex justify-between items-center p-3 rounded-lg bg-[var(--color-elev-2)]"
+                      >
+                        <span className="font-medium text-[var(--color-text)]">
+                          {member?.user?.name || member?.user?.email}
+                        </span>
+                        <span className="text-sm text-[var(--color-muted)] italic">{member.role}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[var(--color-muted)] italic">No hay miembros en esta organización.</p>
+                )}
+              </section>
+            )}
+
+            <div className="divider"></div>
+
+            {/* Switcher y logout */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <OrganizationSwitcher
+                  organizations={organizations}
+                  activeId={user?.activeOrganizationId}
+                  onSwitch={() => {
+                    clearProject();
+                    window.location.reload();
+                  }}
+                />
+              </div>
             </div>
-          )}
-          <OrganizationSwitcher
-            organizations={organizations}
-            activeId={user?.activeOrganizationId}
-            onSwitch={(id) => {
-              window.location.reload()
-              clearProject()
-            }}
-          />
-          {/* Logout */}
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded transition duration-200"
-          >
-            Cerrar sesión
-          </button>
+          </div>
         </div>
       </div>
+      <AddMembersModal isOpen={isOpen} onClose={onClose}/>
     </DashboardLayout>
   );
 }

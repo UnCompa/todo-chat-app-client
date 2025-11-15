@@ -1,5 +1,5 @@
 import { useAuthStore } from "../../../../store/auth/authStore";
-import { useProjectStore } from "../../../../store/dashboard/projectStore";
+import { useProjectStore, type Project } from "../../../../store/dashboard/projectStore";
 import { useDisclosure } from "../../hooks/useDisclore";
 import { useProject } from "../../hooks/useProject";
 import CreateProjectModal from "./CreateProjectModal";
@@ -44,7 +44,7 @@ function CreateFirstProject() {
           Selecciona un proyecto
         </h2>
         <ul className="flex flex-col gap-2">
-          {projectsData.map((project) => (
+          {projectsData.map((project: Project) => (
             <li key={project.id}>
               <button
                 onClick={() => setProject(project)}

@@ -9,7 +9,7 @@ export class HelperService extends ApiClient {
         answer,
       });
       return { success: res.status == 201 };
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error al enviar feedback:", error.response?.data || error.message);
       throw error;
     }
